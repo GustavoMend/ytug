@@ -1,37 +1,45 @@
-import os
-import pytube
 from moviepy.editor import AudioFileClip
+import pytube
+import os
 import mutagen
 
-def download_audio(url):
+def download_and_convert(url):
     # Create YouTube object and extract audio stream
     yt = pytube.YouTube(url)
     audio_stream = yt.streams.filter(only_audio=True).first()
 
     # Set output file names
     output_mp4 = f"{yt.title}.mp4"
-    output_mp3 = f"{yt.title}.mp3"
 
     # Download audio stream to MP4 file
     audio_stream.download(output_path=os.getcwd(), filename=output_mp4)
 
-    # Use moviepy to convert an mp4 to an mp3 with metadata support. Delete mp4 afterwards
+    # Use moviepy to convert the MP4 file to an MP3 file with metadata support, then delete the MP4 file
     audio_clip = AudioFileClip(output_mp4)
-    output_mp3_with_metadata = output_mp3.replace(".mp3", "-with-metadata.mp3")
-    audio_clip.write_audiofile(output_mp3_with_metadata)
+    output_mp3 = f"{yt.title}.mp3"
+    audio_clip.write_audiofile(output_mp3)
     audio_clip.close()
     os.remove(output_mp4)
 
-    update_metadata(output_mp3_with_metadata, yt.title, yt.author)
+    # Get video details from YouTube
+    title = yt.title
+    artist = yt.author
+    album = ""
 
-def update_metadata(file_path, title, artist, album=""):
+    # Update metadata of MP3 file
+    update_metadata(output_mp3, title, artist, album)
+
+    print(f"Download complete. Audio saved as {output_mp3}.")
+
+def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
     # Update the file metadata according to YouTube video details
     with open(file_path, 'r+b') as file:
         media_file = mutagen.File(file, easy=True)
         media_file["title"] = title
-        if album: media_file["album"] = album
+        if album:
+            media_file["album"] = album
         media_file["artist"] = artist
-        media_file.save()
+        media_file.save(file)
 
-
-print(Audio saved)
+url = input("Enter YouTube video URL: ")
+download_and_convert(url)
