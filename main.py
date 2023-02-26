@@ -1,6 +1,7 @@
 import os
 import pytube
 from moviepy.editor import *
+from mutagen.mp3 import MP3, ID3, TIT2, TPE1, TALB
 
 # Ask user for YouTube video URL
 url = input("Enter YouTube video URL: ")
@@ -23,10 +24,11 @@ audio_clip.close()
 
 # Add metadata to the output MP3 file
 audio = MP3(output_mp3, ID3=ID3)
-audio.tags.add(TIT2(text=yt.title))
-audio.tags.add(TPE1(text=yt.author))
-audio.tags.add(TALB(text=yt.title))
+audio["TIT2"] = TIT2(encoding=3, text=yt.title)
+audio["TPE1"] = TPE1(encoding=3, text=yt.author)
+audio["TALB"] = TALB(encoding=3, text=yt.title)
 audio.save()
+
 
 # Delete MP4 file
 os.remove(output_mp4)
