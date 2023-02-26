@@ -5,9 +5,12 @@ import mutagen
 
 def download_and_convert(url):
     # Create YouTube object and extract audio stream
-    yt = pytube.YouTube(url)
+    try:
+        yt = pytube.YouTube(url)
+    except pytube.exceptions.RegexMatchError:
+        print("The provided URL is not supported.")
+        return
     audio_stream = yt.streams.filter(only_audio=True).first()
-
     # Set output file names
     output_mp4 = f"{yt.title}.mp4"
 
