@@ -24,6 +24,7 @@ print("Conversion complete.")
 
 # Update file metadata
 update_metadata(output_mp3, yt.title, yt.author)
+def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
 # Update the file metadata according to YouTube video details
 with open(output_mp3, 'r+b') as file:
     media_file = mutagen.File(file, easy=True)
