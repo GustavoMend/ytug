@@ -1,7 +1,7 @@
 import os
 import pytube
 from moviepy.editor import *
-from moviepy.video.io.ffmpeg_metadata import FFmpegMetadata
+import mutagen
 # Ask user for YouTube video URL
 url = input("Enter YouTube video URL: ")
 
