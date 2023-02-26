@@ -20,19 +20,24 @@ audio_stream.download(output_path=os.getcwd(), filename=output_mp4)
 print("Converting audio file...")
 with AudioFileClip(output_mp4) as audio_clip:
     audio_clip.write_audiofile(output_mp3, bitrate="192k")
-print("Conversion complete.")
-def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
+
 # Update file metadata
+print("Updating file metadata...")
 update_metadata(output_mp3, yt.title, yt.author)
 
+# Delete MP4 file
+os.remove(output_mp4)
+
+print(f"Audio saved to {output_mp3}")
+
+def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
     # Update the file metadata according to YouTube video details
-    with open(output_mp3, 'r+b') as file:
+    with open(file_path, 'r+b') as file:
         media_file = mutagen.File(file, easy=True)
-        media_file["title"] = yt.title
+        media_file["title"] = title
         media_file["artist"] = artist
         media_file["album"] = album
         media_file.save()
-
 # Delete MP4 file
 os.remove(output_mp4)
 
