@@ -19,8 +19,10 @@ audio_stream.download(output_path=os.getcwd(), filename=output_mp4)
 # Convert MP4 file to MP3 file and add metadata
 with AudioFileClip(output_mp4) as audio_clip:
     audio_clip.write_audiofile(output_mp3, bitrate="192k")
-    metadata = FFmpegMetadata(title=yt.title, artist=artist, album=album)
-    audio_clip.write_metadata(metadata)
+    audio_clip.reader.metadata["title"] = yt.title
+    audio_clip.reader.metadata["artist"] = artist
+    audio_clip.reader.metadata["album"] = album
+    audio_clip.reader.metadata.save()
 
 # Update the file metadata according to YouTube video details
 with open(output_mp3, 'r+b') as file:
