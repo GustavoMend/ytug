@@ -16,14 +16,14 @@ output_mp3 = f"{yt.title}.mp3"
 # Download audio stream to MP4 file
 audio_stream.download(output_path=os.getcwd(), filename=output_mp4)
 
-# Convert MP4 file to MP3 file and add metadata
+# Convert MP4 file to MP3 file
+print("Converting audio file...")
 with AudioFileClip(output_mp4) as audio_clip:
     audio_clip.write_audiofile(output_mp3, bitrate="192k")
-    audio_clip.reader.metadata["title"] = yt.title
-    audio_clip.reader.metadata["artist"] = artist
-    audio_clip.reader.metadata["album"] = album
-    audio_clip.reader.metadata.save()
+print("Conversion complete.")
 
+# Update file metadata
+update_metadata(output_mp3, yt.title, yt.author)
 # Update the file metadata according to YouTube video details
 with open(output_mp3, 'r+b') as file:
     media_file = mutagen.File(file, easy=True)
