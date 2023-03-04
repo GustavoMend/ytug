@@ -1,17 +1,12 @@
-from telethon import TelegramClient, events
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from moviepy.editor import AudioFileClip
 import pytube
 import os
 import mutagen
 
-# replace the values below with your own
-api_id = 11169140
-api_hash = '4b185d543b0d1a84bed3a462ade1498f'
-bot_token = '5542310588:AAEIZ8lDrbRyQGtjOG33Tf8Ly_lpiLBwYsk'
+def start(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! Please send me a YouTube video URL to download the audio.")
 
-bot = TelegramClient('youtube_downloader', api_id, api_hash).start(bot_token=bot_token)
-
-# Define the function for downloading and converting YouTube videos
 def download_and_convert(url):
     # Create YouTube object and extract audio stream
     try:
@@ -19,7 +14,6 @@ def download_and_convert(url):
     except pytube.exceptions.RegexMatchError:
         return "The provided URL is not supported."
     audio_stream = yt.streams.filter(only_audio=True).first()
-
     # Set output file names
     output_mp4 = f"{yt.title}.mp4"
 
@@ -43,7 +37,6 @@ def download_and_convert(url):
 
     return output_mp3
 
-# Define the function for updating metadata of MP3 files
 def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
     # Update the file metadata according to YouTube video details
     with open(file_path, 'r+b') as file:
@@ -54,20 +47,29 @@ def update_metadata(file_path: str, title: str, artist: str, album: str="") -> N
         media_file["artist"] = artist
         media_file.save(file)
 
-# Set up event handler for incoming messages
-@bot.on(events.NewMessage(pattern='/start'))
-async def start(event):
-    await event.respond('Welcome to the YouTube downloader bot! Send me a YouTube video URL and I will convert it to MP3 for you.')
-
-@bot.on(events.NewMessage)
-async def handle_message(event):
-    if event.message.text.startswith('http'):
-        url = event.message.text
-        result = download_and_convert(url)
-        if result:
-            await bot.send_file(event.chat_id, result)
+def handle_message(update, context):
+    text = update.message.text
+    if "youtube.com" in text:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Downloading...")
+        output_mp3 = download_and_convert(text)
+        if output_mp3:
+            context.bot.send_audio(chat_id=update.effective_chat.id, audio=open(output_mp3, 'rb'))
+            os.remove(output_mp3)
         else:
-            await event.respond("Sorry, I couldn't download and convert that YouTube video.")
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't download that video.")
 
-# Start the bot
-bot.run_until_disconnected()
+
+def main():
+    updater = Updater(token="5542310588:AAEIZ8lDrbRyQGtjOG33Tf8Ly_lpiLBwYsk", use_context=True)
+
+    start_handler = CommandHandler('start', start)
+    message_handler = MessageHandler(Filters.text, handle_message)
+
+    updater.dispatcher.add_handler(start_handler)
+    updater.dispatcher.add_handler(message_handler)
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
