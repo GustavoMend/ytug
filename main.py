@@ -15,7 +15,7 @@ def download_and_convert(url):
     output_mp4 = f"{yt.title}.mp4"
 
     # Download audio stream to MP4 file
-    audio_stream.download(output_path=os.getcwd(), filename=output_mp4)
+    audio_stream.download(output_path=getcwd(), filename=output_mp4)
 
     # Use moviepy to convert the MP4 file to an MP3 file with metadata support, then delete the MP4 file
     audio_clip = AudioFileClip(output_mp4)
