@@ -1,6 +1,6 @@
 from moviepy.editor import AudioFileClip
 import pytube
-import os
+
 import mutagen
 
 def download_and_convert(url):
@@ -22,7 +22,7 @@ def download_and_convert(url):
     output_mp3 = f"{yt.title}.mp3"
     audio_clip.write_audiofile(output_mp3)
     audio_clip.close()
-    os.remove(output_mp4)
+    remove(output_mp4)
 
     # Get video details from YouTube
     title = yt.title
